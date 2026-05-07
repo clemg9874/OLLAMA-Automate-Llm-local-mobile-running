@@ -1,0 +1,21 @@
+{
+  "name": "ollama-automate-llm-local-mobile-running",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test:setup": "node scripts/test-setup.mjs",
+    "test:pairing": "node scripts/test-pairing.mjs"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "electron",
+      "electron-winstaller"
+    ]
+  },
+  "devDependencies": {
+    "turbo": "latest"
+  }
+}

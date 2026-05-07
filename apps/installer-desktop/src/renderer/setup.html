@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Local AI Installer</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Inter, Arial, sans-serif;
+        background: #0f1115;
+        color: #f3f4f6;
+      }
+      .container {
+        max-width: 920px;
+        margin: 0 auto;
+        padding: 32px 24px;
+      }
+      h1 {
+        font-size: 24px;
+        margin-bottom: 8px;
+      }
+      .muted {
+        color: #b5bac7;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+        margin-top: 20px;
+        flex-wrap: wrap;
+      }
+      button {
+        border: 1px solid #2a2f3a;
+        background: #1a202c;
+        color: #f3f4f6;
+        border-radius: 8px;
+        padding: 10px 14px;
+        cursor: pointer;
+      }
+      button:hover {
+        background: #222a39;
+      }
+      pre {
+        margin-top: 20px;
+        background: #111827;
+        border: 1px solid #222c3f;
+        border-radius: 10px;
+        padding: 14px;
+        overflow: auto;
+      }
+      .hint {
+        margin-top: 12px;
+        color: #8bb4ff;
+      }
+      .status {
+        margin-top: 14px;
+        padding: 10px 12px;
+        border: 1px solid #2a2f3a;
+        border-radius: 8px;
+        display: inline-block;
+      }
+      .ready {
+        color: #8cf7a7;
+      }
+      .not-ready {
+        color: #f4bf75;
+      }
+      #open-dashboard-btn:disabled,
+      #pairing-btn:disabled,
+      #cloudflared-btn:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+      #qr-container {
+        margin-top: 16px;
+        position: relative;
+        display: inline-block;
+      }
+      #public-url {
+        margin-top: 10px;
+      }
+      #qr-image {
+        margin-top: 8px;
+        width: 280px;
+        height: 280px;
+        border: 1px solid #2a2f3a;
+        border-radius: 10px;
+        background: white;
+        display: none;
+      }
+      #qr-image.qr-inactive {
+        filter: grayscale(0.9) brightness(0.7);
+      }
+      #pairing-badge {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: #18a058;
+        color: #fff;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 4px 8px;
+        border-radius: 999px;
+        display: none;
+        z-index: 2;
+      }
+      #pairing-badge.expired {
+        background: #7d8596;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>OLLAMA Automate - Setup Wizard</h1>
+      <p class="muted">
+        API cible:
+        <span id="api-url"></span>
+      </p>
+
+      <div class="row">
+        <button id="checks-btn">1) Run checks</button>
+        <button id="bootstrap-btn">2) Bootstrap local setup</button>
+        <button id="start-btn">3) Start services + ensure model</button>
+        <button id="status-btn">Refresh setup status</button>
+        <button id="cloudflared-btn" disabled>Start Cloudflared DNS</button>
+        <button id="pairing-btn" disabled>Generate pairing QR</button>
+        <button id="open-dashboard-btn" disabled>Open local dashboard</button>
+      </div>
+
+      <div class="status">
+        Setup status:
+        <strong id="setup-status" class="not-ready">NOT READY</strong>
+      </div>
+
+      <p class="hint">
+        Ordre recommandé: checks -&gt; bootstrap -&gt; start
+      </p>
+      <div id="public-url" class="muted">Public API URL: not available</div>
+      <div id="qr-container">
+        <div class="muted">Pairing QR (active 60s)</div>
+        <div id="pairing-badge">connected</div>
+        <img id="qr-image" alt="Pairing QR code" />
+      </div>
+      <pre id="output">{ "status": "idle" }</pre>
+    </div>
+
+    <script src="./setup.js"></script>
+  </body>
+  </html>

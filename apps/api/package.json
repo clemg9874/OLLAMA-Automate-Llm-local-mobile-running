@@ -1,0 +1,14 @@
+{
+  "name": "@apps/api",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node src/index.js",
+    "build": "echo \"No build step for now\""
+  },
+  "dependencies": {
+    "@fastify/cors": "latest",
+    "fastify": "latest"
+  }
+}
