@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createAuthedApiClient } from "../../lib/apiClient";
+import { createAuthedApiClient } from "../../services/apiClient";
 import { appConfig } from "../../lib/config";
 import { savePairingSession } from "../../lib/sessionStore";
 import { createChatConversation, fetchChatConversations } from "../../services/chatService";

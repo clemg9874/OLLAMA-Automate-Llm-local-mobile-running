@@ -1,5 +1,5 @@
 import { Text, View } from "react-native";
-import { hommeScreenStyles as styles } from "../../HommeScreen.styles";
+import { styles } from "./HomeHeader.styles";
 
 type Props = {
   conversationsCount: number;
@@ -17,7 +17,6 @@ export function HomeHeader({ conversationsCount }: Props) {
           <Text style={styles.homeWifi}>⌁</Text>
         </View>
       </View>
-
       <View style={styles.homeStatsBar}>
         <View style={styles.homeStatsLeft}>
           <Text style={styles.homeStatsText}>● Connecte</Text>

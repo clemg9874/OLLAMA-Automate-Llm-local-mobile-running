@@ -1,11 +1,13 @@
 import { CameraView, useCameraPermissions } from "expo-camera";
 import { StatusBar } from "expo-status-bar";
 import { useState } from "react";
-import { ActivityIndicator, Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { confirmPairing, decodePairingDeepLink } from "../../lib/pairing";
+import { PrimaryButton } from "../../components/PrimaryButton/PrimaryButton";
+import { StatusBadge } from "../../components/StatusBadge/StatusBadge";
+import { confirmPairing, decodePairingDeepLink } from "../../services/pairing";
 import { savePairingSession } from "../../lib/sessionStore";
-import { statusColors, type StatusTone } from "../../theme/designSystem";
+import type { StatusTone } from "../../theme/designSystem";
 import type { PairingPayload, PairingSession } from "../../types/app";
 import { styles } from "./PairingScreen.styles";
 
@@ -68,7 +70,7 @@ export function PairingScreen({ onPaired }: Props) {
   }
 
   const statusTone: StatusTone = isSubmitting ? "loading" : result && !lastError ? "success" : "default";
-  const status = statusColors(statusTone);
+  const statusLabel = isSubmitting ? "Connecting..." : result && !lastError ? "Paired" : "Not paired";
 
   return (
     <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
@@ -76,12 +78,7 @@ export function PairingScreen({ onPaired }: Props) {
         <Text style={styles.title}>Mobile Pairing</Text>
         <Text style={styles.subtitle}>Scan the pairing QR code to connect this device.</Text>
 
-        <View style={[styles.badge, { backgroundColor: status.bg }]}>
-          <View style={[styles.badgeDot, { backgroundColor: status.dot }]} />
-          <Text style={[styles.badgeText, { color: status.text }]}>
-            {isSubmitting ? "Connecting..." : result && !lastError ? "Paired" : "Not paired"}
-          </Text>
-        </View>
+        <StatusBadge tone={statusTone} label={statusLabel} />
 
         {isScannerOpen ? (
           <View style={styles.card}>
@@ -91,14 +88,10 @@ export function PairingScreen({ onPaired }: Props) {
               barcodeScannerSettings={{ barcodeTypes: ["qr"] }}
               onBarcodeScanned={({ data }) => onQrScanned(data)}
             />
-            <TouchableOpacity style={[styles.button, styles.secondaryButton]} onPress={() => setIsScannerOpen(false)}>
-              <Text style={styles.buttonText}>Close Scanner</Text>
-            </TouchableOpacity>
+            <PrimaryButton label="Close Scanner" variant="secondary" onPress={() => setIsScannerOpen(false)} />
           </View>
         ) : (
-          <TouchableOpacity style={styles.button} onPress={openScanner} disabled={isSubmitting}>
-            {isSubmitting ? <ActivityIndicator color="#fff" /> : <Text style={styles.buttonText}>Scan pairing QR</Text>}
-          </TouchableOpacity>
+          <PrimaryButton label="Scan pairing QR" onPress={openScanner} loading={isSubmitting} />
         )}
 
         <View style={styles.card}>

@@ -10,6 +10,8 @@ type ApiClient = {
 
 export type ChatConversationSummary = {
   id: string;
+  title?: string;
+  firstUserPrompt?: string | null;
   updatedAt: string;
 };
 

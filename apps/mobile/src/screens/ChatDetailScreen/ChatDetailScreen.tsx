@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { createAuthedApiClient } from "../../lib/apiClient";
+import { createAuthedApiClient } from "../../services/apiClient";
 import { savePairingSession } from "../../lib/sessionStore";
 import { fetchChatHistory, sendChatMessage } from "../../services/chatService";
 import { MessageList } from "../../components/MessageList/MessageList";

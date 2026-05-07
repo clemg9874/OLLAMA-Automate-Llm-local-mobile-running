@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import { ActivityIndicator, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { clearPairingSession, loadPairingSession } from "./src/lib/sessionStore";
 import { ChatDetailScreen } from "./src/screens/ChatDetailScreen/ChatDetailScreen";
 import { HommeScreen } from "./src/screens/HommeScreen/HommeScreen";
 import { PairingScreen } from "./src/screens/PairingScreen/PairingScreen";
 import type { PairingSession } from "./src/types/app";
+import { styles } from "./App.styles";
 
 const queryClient = new QueryClient();
 
@@ -137,6 +138,3 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  loadingContainer: { flex: 1, alignItems: "center", justifyContent: "center" },
-});

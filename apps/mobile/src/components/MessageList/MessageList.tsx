@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { connectedScreenStyles as styles } from "../ConnectedScreen.styles";
 import type { ChatMessage } from "../../types/app";
+import { styles } from "./MessageList.styles";
 
 type Props = {
   messages: ChatMessage[];

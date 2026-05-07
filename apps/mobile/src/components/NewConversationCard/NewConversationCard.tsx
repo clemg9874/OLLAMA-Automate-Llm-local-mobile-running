@@ -1,5 +1,6 @@
-import { ActivityIndicator, Text, TextInput, TouchableOpacity, View } from "react-native";
-import { hommeScreenColors, hommeScreenStyles as styles } from "../../HommeScreen.styles";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
+import { PrimaryButton } from "../PrimaryButton/PrimaryButton";
+import { colors, styles } from "./NewConversationCard.styles";
 
 type Props = {
   value: string;
@@ -33,11 +34,15 @@ export function NewConversationCard({
           value={value}
           onChangeText={onChangeText}
           placeholder="De quoi voulez-vous parler ?"
-          placeholderTextColor={hommeScreenColors.inputPlaceholder}
+          placeholderTextColor={colors.inputPlaceholder}
         />
-        <TouchableOpacity style={styles.newConversationSendButton} onPress={onSend} disabled={isCreating}>
-          {isCreating ? <ActivityIndicator color="#fff" /> : <Text style={styles.newConversationSendIcon}>➤</Text>}
-        </TouchableOpacity>
+        <PrimaryButton
+          label="➤"
+          onPress={onSend}
+          loading={isCreating}
+          style={styles.newConversationSendButton}
+          textStyle={styles.newConversationSendIcon}
+        />
       </View>
       <View style={styles.suggestionWrap}>
         {suggestions.map((suggestion) => (
