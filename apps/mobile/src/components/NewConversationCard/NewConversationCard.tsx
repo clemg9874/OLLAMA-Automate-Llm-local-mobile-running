@@ -40,6 +40,7 @@ export function NewConversationCard({
           label="➤"
           onPress={onSend}
           loading={isCreating}
+          disabled={value.trim().length === 0}
           style={styles.newConversationSendButton}
           textStyle={styles.newConversationSendIcon}
         />

@@ -16,6 +16,7 @@ export default function App() {
   const [session, setSession] = useState<PairingSession | null>(null);
   const [route, setRoute] = useState<"pairing" | "connected" | "chat-detail">("pairing");
   const [activeConversationId, setActiveConversationId] = useState<string | undefined>(undefined);
+  const [pendingInitialMessage, setPendingInitialMessage] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const g = globalThis as unknown as {
@@ -98,8 +99,9 @@ export default function App() {
             session={session}
             onDisconnect={resetLocalSession}
             onSessionUpdate={setSession}
-            onOpenConversation={(conversationId) => {
+            onOpenConversation={(conversationId, initialMessage) => {
               setActiveConversationId(conversationId);
+              setPendingInitialMessage(initialMessage);
               setRoute("chat-detail");
             }}
           />
@@ -115,8 +117,13 @@ export default function App() {
           <ChatDetailScreen
             session={session}
             conversationId={activeConversationId}
+            initialMessage={pendingInitialMessage}
+            onInitialMessageConsumed={() => setPendingInitialMessage(undefined)}
             onSessionUpdate={setSession}
-            onBack={() => setRoute("connected")}
+            onBack={() => {
+              setPendingInitialMessage(undefined);
+              setRoute("connected");
+            }}
           />
         </QueryClientProvider>
       </SafeAreaProvider>

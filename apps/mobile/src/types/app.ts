@@ -8,6 +8,7 @@ export type PairingSession = {
   pairedAt: string;
   deviceName: string;
   deviceId: string;
+  machineId: string;
   apiBaseUrl: string;
   accessToken: string;
   refreshToken: string;

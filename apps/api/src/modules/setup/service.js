@@ -779,6 +779,13 @@ export async function sendConversationMessage({
   };
   store.messages.push(userMessage);
 
+  const hadPreviousUserMessage = store.messages.some(
+    (entry) => entry.conversationId === conversationId && entry.role === "user" && entry.id !== userMessage.id,
+  );
+  if (!hadPreviousUserMessage && !conversation.title) {
+    conversation.title = deriveConversationTitle(trimmed);
+  }
+
   const prompt = history ? `${history}\nUSER: ${trimmed}\nASSISTANT:` : trimmed;
   const completion = await sendChatMessage({
     authorizationHeader,
@@ -819,10 +826,31 @@ export async function listChatConversations({
     .filter((entry) =>
       authMachineId ? entry.machineId === authMachineId : entry.deviceId === authDeviceId,
     )
-    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+    .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
+    .map((entry) => {
+      const firstUserMessage = store.messages
+        .filter((msg) => msg.conversationId === entry.id && msg.role === "user")
+        .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())[0];
+      const firstUserPrompt = firstUserMessage?.content ?? null;
+      const title = entry.title || deriveConversationTitle(firstUserPrompt);
+      return {
+        ...entry,
+        title,
+        firstUserPrompt,
+      };
+    });
 
   return {
     ok: true,
     conversations,
   };
+}
+
+function deriveConversationTitle(prompt) {
+  if (!prompt) return "";
+  const normalized = String(prompt).replace(/\s+/g, " ").trim();
+  if (!normalized) return "";
+  const maxLength = 60;
+  if (normalized.length <= maxLength) return normalized;
+  return `${normalized.slice(0, maxLength - 1).trimEnd()}…`;
 }

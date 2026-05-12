@@ -1,7 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { ActivityIndicator, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, Alert, ScrollView, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createAuthedApiClient } from "../../services/apiClient";
 import { appConfig } from "../../lib/config";
@@ -17,7 +17,7 @@ type Props = {
   session: PairingSession;
   onDisconnect: () => Promise<void>;
   onSessionUpdate: (nextSession: PairingSession) => void;
-  onOpenConversation: (conversationId: string) => void;
+  onOpenConversation: (conversationId: string, initialMessage?: string) => void;
 };
 
 type ChatResultMeta = {
@@ -63,6 +63,8 @@ export function HommeScreen({ session, onDisconnect, onSessionUpdate, onOpenConv
 
   async function createConversationAndOpen(seedMessage?: string) {
     if (isCreating) return;
+    const trimmedSeed = seedMessage?.trim() ?? "";
+
     setIsCreating(true);
     try {
       const createdId = await createChatConversation(api, appConfig.defaultChatModel);
@@ -71,11 +73,11 @@ export function HommeScreen({ session, onDisconnect, onSessionUpdate, onOpenConv
       setChatResultMeta({
         ok: true,
         status: 200,
-        info: seedMessage ? "CHAT_CONVERSATION_CREATED_WITH_PROMPT" : "CHAT_CONVERSATION_CREATED",
+        info: "CHAT_CONVERSATION_CREATED_WITH_PROMPT",
         conversationId: createdId,
       });
       setNewPrompt("");
-      onOpenConversation(createdId);
+      onOpenConversation(createdId, trimmedSeed);
     } catch (error) {
       setChatResultMeta({ ok: false, error: String(error) });
     } finally {

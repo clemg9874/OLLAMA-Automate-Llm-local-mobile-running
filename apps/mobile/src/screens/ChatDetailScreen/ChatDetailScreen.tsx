@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ActivityIndicator,
@@ -29,11 +29,20 @@ type ChatResultMeta = {
 type Props = {
   session: PairingSession;
   conversationId: string;
+  initialMessage?: string;
+  onInitialMessageConsumed?: () => void;
   onSessionUpdate: (nextSession: PairingSession) => void;
   onBack: () => void;
 };
 
-export function ChatDetailScreen({ session, conversationId, onSessionUpdate, onBack }: Props) {
+export function ChatDetailScreen({
+  session,
+  conversationId,
+  initialMessage,
+  onInitialMessageConsumed,
+  onSessionUpdate,
+  onBack,
+}: Props) {
   const [chatMessage, setChatMessage] = useState("");
   const [chatResultMeta, setChatResultMeta] = useState<ChatResultMeta | undefined>(undefined);
   const [selectedModel] = useState("llama3.1:8b");
@@ -78,24 +87,41 @@ export function ChatDetailScreen({ session, conversationId, onSessionUpdate, onB
     },
   });
 
+  async function dispatchMessage(message: string) {
+    const trimmed = message.trim();
+    if (!trimmed) return;
+    const optimisticUserMessage = {
+      id: `tmp-${Date.now()}`,
+      conversationId,
+      role: "user" as const,
+      content: trimmed,
+      createdAt: new Date().toISOString(),
+    };
+    setShowTypingIndicator(true);
+    setOptimisticMessages((prev) => [...prev, optimisticUserMessage]);
+    await sendMutation.mutateAsync(trimmed);
+  }
+
   async function sendChat() {
     const message = chatMessage.trim();
     if (!message) {
       Alert.alert("Empty message", "Type a message before sending.");
       return;
     }
-    const optimisticUserMessage = {
-      id: `tmp-${Date.now()}`,
-      conversationId,
-      role: "user" as const,
-      content: message,
-      createdAt: new Date().toISOString(),
-    };
     setChatMessage("");
-    setShowTypingIndicator(true);
-    setOptimisticMessages((prev) => [...prev, optimisticUserMessage]);
-    await sendMutation.mutateAsync(message);
+    await dispatchMessage(message);
   }
+
+  const autoSentRef = useRef(false);
+  useEffect(() => {
+    if (autoSentRef.current) return;
+    const trimmed = initialMessage?.trim();
+    if (!trimmed) return;
+    autoSentRef.current = true;
+    onInitialMessageConsumed?.();
+    void dispatchMessage(trimmed);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialMessage]);
 
   return (
     <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
