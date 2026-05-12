@@ -29,4 +29,13 @@ export type ChatMessage = {
   role: "user" | "assistant";
   content: string;
   createdAt: string;
+  responseTimeMs?: number;
+};
+
+export type ChatConversation = {
+  id: string;
+  model?: string;
+  title?: string;
+  createdAt?: string;
+  updatedAt?: string;
 };

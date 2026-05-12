@@ -21,11 +21,13 @@ export function NewConversationCard({
 }: Props) {
   return (
     <View style={styles.newConversationCard}>
-      <Text style={styles.newConversationTitle}>Nouvelle conversation</Text>
-      <Text style={styles.newConversationSub}>Posez votre question a l'IA locale</Text>
       <View style={styles.newConversationHeaderRow}>
         <View style={styles.newConversationIconWrap}>
           <Text style={styles.newConversationIcon}>✣</Text>
+        </View>
+        <View style={styles.newConversationHeaderTextWrap}>
+          <Text style={styles.newConversationTitle}>Nouvelle conversation</Text>
+          <Text style={styles.newConversationSub}>Posez votre question a l'IA locale</Text>
         </View>
       </View>
       <View style={styles.newConversationInputRow}>
@@ -44,13 +46,6 @@ export function NewConversationCard({
           style={styles.newConversationSendButton}
           textStyle={styles.newConversationSendIcon}
         />
-      </View>
-      <View style={styles.suggestionWrap}>
-        {suggestions.map((suggestion) => (
-          <TouchableOpacity key={suggestion} style={styles.suggestionChip} onPress={() => onPickSuggestion(suggestion)}>
-            <Text style={styles.suggestionText}>{`+ ${suggestion}`}</Text>
-          </TouchableOpacity>
-        ))}
       </View>
     </View>
   );

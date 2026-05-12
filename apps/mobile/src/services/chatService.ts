@@ -1,4 +1,4 @@
-import type { ChatMessage } from "../types/app";
+import type { ChatConversation, ChatMessage } from "../types/app";
 
 type ApiClient = {
   request: <T = Record<string, unknown>>(
@@ -15,12 +15,23 @@ export type ChatConversationSummary = {
   updatedAt: string;
 };
 
-export async function fetchChatHistory(api: ApiClient, conversationId: string): Promise<ChatMessage[]> {
-  const result = await api.request<{ messages?: ChatMessage[] }>(`/chat/conversations/${conversationId}/messages`, "GET");
+export type ChatHistory = {
+  conversation: ChatConversation | null;
+  messages: ChatMessage[];
+};
+
+export async function fetchChatHistory(api: ApiClient, conversationId: string): Promise<ChatHistory> {
+  const result = await api.request<{ conversation?: ChatConversation; messages?: ChatMessage[] }>(
+    `/chat/conversations/${conversationId}/messages`,
+    "GET",
+  );
   if (!result.ok) {
     throw new Error(extractError(result.data, "CHAT_HISTORY_LOAD_FAILED"));
   }
-  return result.data?.messages ?? [];
+  return {
+    conversation: result.data?.conversation ?? null,
+    messages: result.data?.messages ?? [],
+  };
 }
 
 export async function fetchChatConversations(api: ApiClient): Promise<ChatConversationSummary[]> {

@@ -14,6 +14,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createAuthedApiClient } from "../../services/apiClient";
+import { appConfig } from "../../lib/config";
 import { useConnectionStatus } from "../../lib/connectionStatus";
 import { savePairingSession } from "../../lib/sessionStore";
 import { fetchChatHistory, sendChatMessage } from "../../services/chatService";
@@ -47,15 +48,14 @@ export function ChatDetailScreen({
 }: Props) {
   const [chatMessage, setChatMessage] = useState("");
   const [chatResultMeta, setChatResultMeta] = useState<ChatResultMeta | undefined>(undefined);
-  const [selectedModel] = useState("llama3.1:8b");
   const [optimisticMessages, setOptimisticMessages] = useState<
     Array<{ id: string; conversationId: string; role: "user" | "assistant"; content: string; createdAt: string }>
   >([]);
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
   const connection = useConnectionStatus();
   const isOnline = connection.state === "connected" && connection.apiReachable;
-  const connectionTone = isOnline ? "success" : connection.state === "connecting" ? "loading" : "error";
-  const connectionLabel = isOnline ? "En ligne" : connection.state === "connecting" ? "Connexion..." : "Hors ligne";
+  const connectionTone = isOnline ? "success" : "error";
+  const connectionLabel = isOnline ? "En ligne" : "Hors ligne";
   const queryClient = useQueryClient();
   const api = useMemo(
     () =>
@@ -73,6 +73,19 @@ export function ChatDetailScreen({
     queryKey: ["chat-history", conversationId],
     queryFn: async () => fetchChatHistory(api, conversationId),
   });
+
+  const messages = historyQuery.data?.messages ?? [];
+  const conversation = historyQuery.data?.conversation ?? null;
+  const selectedModel = conversation?.model ?? appConfig.defaultChatModel;
+  const screenTitle = conversation?.title?.trim() || "Conversation";
+  const averageResponseSeconds = useMemo(() => {
+    const samples = messages
+      .filter((m) => m.role === "assistant" && typeof m.responseTimeMs === "number")
+      .map((m) => m.responseTimeMs as number);
+    if (!samples.length) return null;
+    const avg = samples.reduce((acc, ms) => acc + ms, 0) / samples.length;
+    return avg / 1000;
+  }, [messages]);
 
   const sendMutation = useMutation({
     mutationFn: async (message: string) => {
@@ -133,13 +146,17 @@ export function ChatDetailScreen({
     <SafeAreaView style={styles.screen} edges={["top", "left", "right"]}>
       <KeyboardAvoidingView behavior={Platform.OS === "ios" ? "padding" : undefined} style={styles.screen}>
         <View style={styles.chatTopBar}>
-          <View style={styles.chatTopTitleWrap}>
-            <Text style={styles.chatTopTitle}>Conversation</Text>
+          <TouchableOpacity style={styles.chatTopBackButton} onPress={onBack} accessibilityRole="button" accessibilityLabel="Retour">
+            <Text style={styles.chatTopBackButtonIcon}>←</Text>
+          </TouchableOpacity>
+          <View style={styles.chatTopRight}>
             <StatusBadge tone={connectionTone} label={connectionLabel} />
           </View>
-          <TouchableOpacity style={styles.chatTopMenuButton} onPress={onBack}>
-            <Text style={styles.chatTopMenuText}>⋮</Text>
-          </TouchableOpacity>
+          <View pointerEvents="none" style={styles.chatTopTitleWrap}>
+            <Text style={styles.chatTopTitle} numberOfLines={1}>
+              {screenTitle}
+            </Text>
+          </View>
         </View>
 
         <View style={styles.chatModelRow}>
@@ -148,7 +165,9 @@ export function ChatDetailScreen({
             <Text style={styles.chatModelPillText}>{selectedModel.replace(":", " ")}</Text>
             <Text style={styles.chatModelCaret}>⌄</Text>
           </View>
-          <Text style={styles.chatModelMeta}>◷ Avg: 1.2s</Text>
+          <Text style={styles.chatModelMeta}>
+            {averageResponseSeconds !== null ? `◷ Avg: ${averageResponseSeconds.toFixed(1)}s` : "◷ Avg: —"}
+          </Text>
         </View>
 
         <ScrollView horizontal style={styles.chatQuickActionsScroll} showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chatQuickActions}>
@@ -164,7 +183,7 @@ export function ChatDetailScreen({
         </ScrollView>
 
         <ScrollView style={styles.chatMessagesScroll} contentContainerStyle={styles.chatMessagesContainer}>
-          <MessageList messages={[...(historyQuery.data ?? []), ...optimisticMessages]} isLoading={historyQuery.isPending} showTypingIndicator={showTypingIndicator} />
+          <MessageList messages={[...messages, ...optimisticMessages]} isLoading={historyQuery.isPending} showTypingIndicator={showTypingIndicator} />
         </ScrollView>
 
         <View style={styles.chatComposer}>

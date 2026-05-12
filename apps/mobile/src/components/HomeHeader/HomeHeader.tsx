@@ -10,15 +10,13 @@ type Props = {
 export function HomeHeader({ conversationsCount }: Props) {
   const status = useConnectionStatus();
   const isOnline = status.state === "connected" && status.apiReachable;
-  const headerLabel = isOnline ? "En ligne" : status.state === "connecting" ? "Connexion..." : "Hors ligne";
-  const headerTone = isOnline ? "success" : status.state === "connecting" ? "loading" : "error";
+  const headerLabel = isOnline ? "En ligne" : "Hors ligne";
+  const headerTone = isOnline ? "success" : "error";
   const statsLabel = isOnline
     ? status.ollamaReachable
       ? "● Ollama connecte"
       : "● API connectee"
-    : status.state === "connecting"
-      ? "● Connexion en cours"
-      : "● Hors ligne";
+    : "● Hors ligne";
 
   return (
     <>
@@ -35,7 +33,7 @@ export function HomeHeader({ conversationsCount }: Props) {
         <View style={styles.homeStatsLeft}>
           <Text style={[styles.homeStatsText, isOnline ? styles.homeStatsTextOnline : null]}>{statsLabel}</Text>
         </View>
-        <Text style={styles.homeStatsText}>{`${conversationsCount} conversation${conversationsCount > 1 ? "s" : ""}  ›`}</Text>
+        <Text style={styles.homeStatsText}>{`${conversationsCount} conversation${conversationsCount > 1 ? "s" : ""}`}</Text>
       </View>
     </>
   );

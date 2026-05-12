@@ -10,10 +10,12 @@ export const styles = StyleSheet.create({
     padding: ds.spacing.md,
   },
   newConversationHeaderRow: {
-    position: "absolute",
-    left: ds.spacing.md,
-    top: ds.spacing.md,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: ds.spacing.md,
+    marginBottom: ds.spacing.sm,
   },
+  newConversationHeaderTextWrap: { flex: 1 },
   newConversationIconWrap: {
     width: 42,
     height: 42,
@@ -24,7 +26,7 @@ export const styles = StyleSheet.create({
   },
   newConversationIcon: { color: "#00d1d1", fontSize: 16, fontWeight: "700" },
   newConversationTitle: { color: ds.colors.text, fontSize: ds.typography.heading, fontWeight: "700" },
-  newConversationSub: { color: ds.colors.textMuted, fontSize: ds.typography.caption, marginTop: 2, marginBottom: ds.spacing.sm, paddingLeft: 56 },
+  newConversationSub: { color: ds.colors.textMuted, fontSize: ds.typography.caption, marginTop: 2 },
   newConversationInputRow: {
     flexDirection: "row",
     alignItems: "center",

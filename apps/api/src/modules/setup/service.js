@@ -787,6 +787,7 @@ export async function sendConversationMessage({
   }
 
   const prompt = history ? `${history}\nUSER: ${trimmed}\nASSISTANT:` : trimmed;
+  const completionStartedAt = Date.now();
   const completion = await sendChatMessage({
     authorizationHeader,
     message: prompt,
@@ -800,6 +801,7 @@ export async function sendConversationMessage({
     role: "assistant",
     content: completion.answer,
     createdAt: new Date().toISOString(),
+    responseTimeMs: Date.now() - completionStartedAt,
   };
   store.messages.push(assistantMessage);
   conversation.updatedAt = new Date().toISOString();
