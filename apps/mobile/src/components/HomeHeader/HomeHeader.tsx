@@ -1,4 +1,6 @@
 import { Text, View } from "react-native";
+import { useConnectionStatus } from "../../lib/connectionStatus";
+import { StatusBadge } from "../StatusBadge/StatusBadge";
 import { styles } from "./HomeHeader.styles";
 
 type Props = {
@@ -6,6 +8,18 @@ type Props = {
 };
 
 export function HomeHeader({ conversationsCount }: Props) {
+  const status = useConnectionStatus();
+  const isOnline = status.state === "connected" && status.apiReachable;
+  const headerLabel = isOnline ? "En ligne" : status.state === "connecting" ? "Connexion..." : "Hors ligne";
+  const headerTone = isOnline ? "success" : status.state === "connecting" ? "loading" : "error";
+  const statsLabel = isOnline
+    ? status.ollamaReachable
+      ? "● Ollama connecte"
+      : "● API connectee"
+    : status.state === "connecting"
+      ? "● Connexion en cours"
+      : "● Hors ligne";
+
   return (
     <>
       <View style={styles.homeHeader}>
@@ -14,15 +28,14 @@ export function HomeHeader({ conversationsCount }: Props) {
             <Text style={styles.homeTitle}>OLLAMA Automate</Text>
             <Text style={styles.homeSubtitle}>Local LLM Mobile</Text>
           </View>
-          <Text style={styles.homeWifi}>⌁</Text>
+          <StatusBadge tone={headerTone} label={headerLabel} />
         </View>
       </View>
       <View style={styles.homeStatsBar}>
         <View style={styles.homeStatsLeft}>
-          <Text style={styles.homeStatsText}>● Connecte</Text>
-          <Text style={styles.homeStatsText}>⚡ 24ms</Text>
+          <Text style={[styles.homeStatsText, isOnline ? styles.homeStatsTextOnline : null]}>{statsLabel}</Text>
         </View>
-        <Text style={styles.homeStatsText}>{`${conversationsCount || 3} modeles  ›`}</Text>
+        <Text style={styles.homeStatsText}>{`${conversationsCount} conversation${conversationsCount > 1 ? "s" : ""}  ›`}</Text>
       </View>
     </>
   );

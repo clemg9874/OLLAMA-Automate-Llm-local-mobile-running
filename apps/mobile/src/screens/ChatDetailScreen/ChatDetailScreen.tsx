@@ -14,9 +14,11 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { createAuthedApiClient } from "../../services/apiClient";
+import { useConnectionStatus } from "../../lib/connectionStatus";
 import { savePairingSession } from "../../lib/sessionStore";
 import { fetchChatHistory, sendChatMessage } from "../../services/chatService";
 import { MessageList } from "../../components/MessageList/MessageList";
+import { StatusBadge } from "../../components/StatusBadge/StatusBadge";
 import { chatDetailColors, chatDetailStyles as styles } from "./ChatDetailScreen.styles";
 import type { PairingSession } from "../../types/app";
 
@@ -50,6 +52,10 @@ export function ChatDetailScreen({
     Array<{ id: string; conversationId: string; role: "user" | "assistant"; content: string; createdAt: string }>
   >([]);
   const [showTypingIndicator, setShowTypingIndicator] = useState(false);
+  const connection = useConnectionStatus();
+  const isOnline = connection.state === "connected" && connection.apiReachable;
+  const connectionTone = isOnline ? "success" : connection.state === "connecting" ? "loading" : "error";
+  const connectionLabel = isOnline ? "En ligne" : connection.state === "connecting" ? "Connexion..." : "Hors ligne";
   const queryClient = useQueryClient();
   const api = useMemo(
     () =>
@@ -129,10 +135,7 @@ export function ChatDetailScreen({
         <View style={styles.chatTopBar}>
           <View style={styles.chatTopTitleWrap}>
             <Text style={styles.chatTopTitle}>Conversation</Text>
-            <View style={styles.chatConnectedBadge}>
-              <View style={styles.chatConnectedDot} />
-              <Text style={styles.chatConnectedText}>Connected</Text>
-            </View>
+            <StatusBadge tone={connectionTone} label={connectionLabel} />
           </View>
           <TouchableOpacity style={styles.chatTopMenuButton} onPress={onBack}>
             <Text style={styles.chatTopMenuText}>⋮</Text>

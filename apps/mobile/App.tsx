@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ActivityIndicator, View } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import { appConfig } from "./src/lib/config";
+import { ConnectionStatusProvider } from "./src/lib/connectionStatus";
 import { clearPairingSession, loadPairingSession } from "./src/lib/sessionStore";
 import { ChatDetailScreen } from "./src/screens/ChatDetailScreen/ChatDetailScreen";
 import { HommeScreen } from "./src/screens/HommeScreen/HommeScreen";
@@ -91,55 +93,45 @@ export default function App() {
     );
   }
 
-  if (session && route === "connected") {
-    return (
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <HommeScreen
-            session={session}
-            onDisconnect={resetLocalSession}
-            onSessionUpdate={setSession}
-            onOpenConversation={(conversationId, initialMessage) => {
-              setActiveConversationId(conversationId);
-              setPendingInitialMessage(initialMessage);
-              setRoute("chat-detail");
-            }}
-          />
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    );
-  }
-
-  if (session && route === "chat-detail" && activeConversationId) {
-    return (
-      <SafeAreaProvider>
-        <QueryClientProvider client={queryClient}>
-          <ChatDetailScreen
-            session={session}
-            conversationId={activeConversationId}
-            initialMessage={pendingInitialMessage}
-            onInitialMessageConsumed={() => setPendingInitialMessage(undefined)}
-            onSessionUpdate={setSession}
-            onBack={() => {
-              setPendingInitialMessage(undefined);
-              setRoute("connected");
-            }}
-          />
-        </QueryClientProvider>
-      </SafeAreaProvider>
-    );
-  }
+  const apiBaseUrl = session?.apiBaseUrl ?? appConfig.defaultApiBaseUrl;
 
   return (
     <SafeAreaProvider>
       <QueryClientProvider client={queryClient}>
-        <PairingScreen
-          onPaired={(nextSession) => {
-            setSession(nextSession);
-            setActiveConversationId(nextSession.conversationId);
-            setRoute("connected");
-          }}
-        />
+        <ConnectionStatusProvider apiBaseUrl={apiBaseUrl}>
+          {session && route === "connected" ? (
+            <HommeScreen
+              session={session}
+              onDisconnect={resetLocalSession}
+              onSessionUpdate={setSession}
+              onOpenConversation={(conversationId, initialMessage) => {
+                setActiveConversationId(conversationId);
+                setPendingInitialMessage(initialMessage);
+                setRoute("chat-detail");
+              }}
+            />
+          ) : session && route === "chat-detail" && activeConversationId ? (
+            <ChatDetailScreen
+              session={session}
+              conversationId={activeConversationId}
+              initialMessage={pendingInitialMessage}
+              onInitialMessageConsumed={() => setPendingInitialMessage(undefined)}
+              onSessionUpdate={setSession}
+              onBack={() => {
+                setPendingInitialMessage(undefined);
+                setRoute("connected");
+              }}
+            />
+          ) : (
+            <PairingScreen
+              onPaired={(nextSession) => {
+                setSession(nextSession);
+                setActiveConversationId(nextSession.conversationId);
+                setRoute("connected");
+              }}
+            />
+          )}
+        </ConnectionStatusProvider>
       </QueryClientProvider>
     </SafeAreaProvider>
   );

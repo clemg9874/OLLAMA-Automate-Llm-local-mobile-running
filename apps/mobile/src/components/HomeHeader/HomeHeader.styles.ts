@@ -27,4 +27,5 @@ export const styles = StyleSheet.create({
   },
   homeStatsLeft: { flexDirection: "row", alignItems: "center", gap: ds.spacing.md },
   homeStatsText: { color: ds.colors.textMuted, fontSize: ds.typography.caption },
+  homeStatsTextOnline: { color: ds.colors.success },
 });
